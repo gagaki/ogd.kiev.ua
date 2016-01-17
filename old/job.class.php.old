@@ -1,0 +1,92 @@
+<?
+
+/*
+// $object->create();
+
+$object->name  = "OGD";
+$object->about = "bla bla-la";
+$object->img   = "-pic1.jpg";
+$object->insert();
+
+$object->name = "---Aaa---";
+$object->update(1); //  From form !
+
+$object->name = "---Aaa2---";
+$object->insert(); // From form !
+*/
+
+
+class Job {
+ var $id;
+ var $part;
+ var $subpart;
+ var $name;
+ var $about;
+ var $img;
+
+ function create() {
+   global $dbconn;
+   $SQL = " CREATE  SEQUENCE    job_id
+        minvalue 1  increment 1  start 1;
+   CREATE  TABLE  job (
+        id        int8  NOT NULL  default nextval('job_id'),
+        part      int8,
+        subpart   int8,
+        name      varchar(64),
+        about     text,
+        img       varchar(128),
+        CONSTRAINT job_pkey PRIMARY KEY (id)
+   );";
+   $result = pg_Exec($dbconn,$SQL);
+   if(!$result) { echo "An error occured.\n"; exit; }
+   pg_FreeResult($result);
+ }
+
+ function view($p_id) {
+   global $dbconn;
+   $SQL = " SELECT id,part,subpart,name,about,img FROM job WHERE id=$p_id ";
+   $result = pg_Exec($dbconn,$SQL);
+   if(!$result) { echo "An error occured.\n"; exit; }
+   $num = pg_numrows($result);
+   if( $num ) {
+     list($this->id,$this->part,$this->subpart,$this->name,$this->about,$this->img) = pg_fetch_row($result,0);
+   }
+   pg_FreeResult($result);
+ }
+
+ function update($p_id) {
+   global $dbconn;
+   $SQL = " UPDATE job SET name='".$this->name."',about='".$this->about."',img='".$this->img."' WHERE id=$p_id ";
+   $result = pg_Exec($dbconn,$SQL);
+   if(!$result) { echo "An error occured.\n"; exit; }
+   pg_FreeResult($result);
+ }
+
+ function insert() {
+   global $dbconn;
+   $SQL = " INSERT INTO job (part,subpart,name,about,img) VALUES (".$this->part.",".$this->subpart.",'".$this->name."','".$this->about."','".$this->img."') ";
+   $result = pg_Exec($dbconn,$SQL);
+   if(!$result) { echo "An error occured.\n"; exit; }
+   pg_FreeResult($result);
+ }
+
+ function insert2() {
+   global $DBH;
+   $STH = $DBH->prepare(" INSERT INTO job (part,subpart,name,about,img) VALUES (:part,:subpart,:name,:about,:img) ");
+   $stmt->bindParam(':part', $this->part);
+   $stmt->bindParam(':subpart', $this->subpart);
+   $stmt->bindParam(':name', $this->name);
+   $stmt->bindParam(':about', $this->about);
+   $stmt->bindParam(':img', $this->img);
+   $STH->execute();
+ }
+
+ // css
+ function view_tpl() {
+   include("job.tpl.php");
+ }
+
+}
+
+
+?>
